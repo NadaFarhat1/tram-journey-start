@@ -362,6 +362,7 @@ export function ProjectDetails({
         onProject={() => {
           setOpenTaskId(null);
           setActiveTab("tasks");
+          setSubView(null);
         }}
       />
     );
@@ -372,28 +373,26 @@ export function ProjectDetails({
       <Breadcrumb
         projectName={project.name}
         onBack={onBack}
-        onProject={() => setRequestsOpen(false)}
-        current={requestsOpen ? "Requests" : undefined}
+        onProject={() => setSubView(null)}
+        current={
+          subView === "requests" ? "Requests" : subView === "risks" ? "Risks" : undefined
+        }
       />
       <ProjectHeader
         project={project}
         taskCount={taskCount}
         onNewCategory={() => setCategoryModalOpen(true)}
-        showNewCategory={!requestsOpen}
+        showNewCategory={subView === null}
       />
-      {requestsOpen ? null : (
+      {subView ? null : (
         <ProjectSummary
           project={project}
-          onFilterTasks={(filter) => {
-            setTaskFilter(filter);
-            setActiveTab("tasks");
-            setRequestsOpen(false);
-          }}
-          onShowRequests={() => setRequestsOpen(true)}
+          onShowRisks={() => setSubView("risks")}
+          onShowRequests={() => setSubView("requests")}
         />
       )}
 
-      {requestsOpen ? null : (
+      {subView ? null : (
         <div className="mt-8 border-b border-border" role="tablist" aria-label="Project sections">
           <div className="flex gap-6">
             {TABS.map((tab) => (
@@ -404,7 +403,7 @@ export function ProjectDetails({
                 aria-selected={activeTab === tab.id}
                 onClick={() => {
                   setActiveTab(tab.id);
-                  setRequestsOpen(false);
+                  setSubView(null);
                 }}
                 className={`-mb-px border-b-2 pb-2.5 text-sm transition-colors ${
                   activeTab === tab.id
