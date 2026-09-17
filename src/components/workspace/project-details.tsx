@@ -381,10 +381,13 @@ export function ProjectDetails({
               key={tab.id}
               type="button"
               role="tab"
-              aria-selected={activeTab === tab.id}
-              onClick={() => setActiveTab(tab.id)}
+              aria-selected={!requestsOpen && activeTab === tab.id}
+              onClick={() => {
+                setActiveTab(tab.id);
+                setRequestsOpen(false);
+              }}
               className={`-mb-px border-b-2 pb-2.5 text-sm transition-colors ${
-                activeTab === tab.id
+                !requestsOpen && activeTab === tab.id
                   ? "border-teal font-medium text-teal"
                   : "border-transparent text-warm-gray hover:text-charcoal"
               }`}
