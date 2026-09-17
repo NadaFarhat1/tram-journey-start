@@ -336,8 +336,7 @@ export function ProjectDetails({
 }) {
   const { addCategory } = useWorkspace();
   const [activeTab, setActiveTab] = useState<TabId>("tasks");
-  const [requestsOpen, setRequestsOpen] = useState(false);
-  const [taskFilter, setTaskFilter] = useState<TaskFilter>("all");
+  const [subView, setSubView] = useState<SubView | null>(null);
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
   const [openTaskId, setOpenTaskId] = useState<string | null>(null);
 
