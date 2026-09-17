@@ -16,6 +16,7 @@ import { TaskSection } from "./task-section";
 import { TaskDetail } from "./task-detail";
 import { useWorkspace } from "./workspace-context";
 import { RequestsPanel } from "./requests-view";
+import { RisksPanel } from "./risks-view";
 import { Button } from "@/components/ui/button";
 import {
   countHeldTasks,
@@ -27,7 +28,7 @@ import {
 } from "./types";
 
 type TabId = "tasks" | "meetings" | "members";
-type TaskFilter = "all" | "risks";
+type SubView = "requests" | "risks";
 
 const TABS: { id: TabId; label: string }[] = [
   { id: "tasks", label: "Tasks" },
@@ -185,11 +186,11 @@ function SummaryCard({
 
 function ProjectSummary({
   project,
-  onFilterTasks,
+  onShowRisks,
   onShowRequests,
 }: {
   project: Project;
-  onFilterTasks: (filter: Exclude<TaskFilter, "all">) => void;
+  onShowRisks: () => void;
   onShowRequests: () => void;
 }) {
   const { requests } = useWorkspace();
@@ -203,7 +204,8 @@ function ProjectSummary({
         icon={<TriangleAlert className="h-4 w-4" />}
         valueClassName="text-destructive"
         iconClassName="text-destructive"
-        onClick={() => onFilterTasks("risks")}
+        onClick={onShowRisks}
+        actionLabel="Show risks"
       />
       <SummaryCard
         label="Requests"
@@ -276,14 +278,10 @@ function CategoriesEmptyState({ onNewCategory }: { onNewCategory: () => void }) 
 function TasksTab({
   project,
   onNewCategory,
-  filter,
-  onShowAll,
   onOpenTask,
 }: {
   project: Project;
   onNewCategory: () => void;
-  filter: TaskFilter;
-  onShowAll: () => void;
   onOpenTask: (taskId: string) => void;
 }) {
   const { renameCategory, removeCategory, addTask, updateTaskStatus, requests } =
@@ -297,30 +295,13 @@ function TasksTab({
   const requestTaskIds = new Set(
     requestsForProject(requests, project.id).map((request) => request.taskId),
   );
-  const visibleCategories =
-    filter === "all"
-      ? project.categories
-      : project.categories
-          .map((category) => ({
-            ...category,
-            tasks: category.tasks.filter((task) => riskTaskIds.has(task.id)),
-          }))
-          .filter((category) => category.tasks.length > 0);
 
   if (project.categories.length === 0) {
     return <CategoriesEmptyState onNewCategory={onNewCategory} />;
   }
   return (
     <div className="space-y-3">
-      {filter !== "all" ? (
-        <div className="flex items-center justify-between gap-4 pb-1">
-          <p className="text-sm text-warm-gray">Showing tasks linked to risks</p>
-          <Button type="button" variant="outline" size="sm" onClick={onShowAll}>
-            Show all tasks
-          </Button>
-        </div>
-      ) : null}
-      {visibleCategories.map((category) => (
+      {project.categories.map((category) => (
         <TaskSection
           key={category.id}
           category={category}
@@ -356,8 +337,7 @@ export function ProjectDetails({
 }) {
   const { addCategory } = useWorkspace();
   const [activeTab, setActiveTab] = useState<TabId>("tasks");
-  const [requestsOpen, setRequestsOpen] = useState(false);
-  const [taskFilter, setTaskFilter] = useState<TaskFilter>("all");
+  const [subView, setSubView] = useState<SubView | null>(null);
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
   const [openTaskId, setOpenTaskId] = useState<string | null>(null);
 
@@ -383,6 +363,7 @@ export function ProjectDetails({
         onProject={() => {
           setOpenTaskId(null);
           setActiveTab("tasks");
+          setSubView(null);
         }}
       />
     );
@@ -393,28 +374,26 @@ export function ProjectDetails({
       <Breadcrumb
         projectName={project.name}
         onBack={onBack}
-        onProject={() => setRequestsOpen(false)}
-        current={requestsOpen ? "Requests" : undefined}
+        onProject={() => setSubView(null)}
+        current={
+          subView === "requests" ? "Requests" : subView === "risks" ? "Risks" : undefined
+        }
       />
       <ProjectHeader
         project={project}
         taskCount={taskCount}
         onNewCategory={() => setCategoryModalOpen(true)}
-        showNewCategory={!requestsOpen}
+        showNewCategory={subView === null}
       />
-      {requestsOpen ? null : (
+      {subView ? null : (
         <ProjectSummary
           project={project}
-          onFilterTasks={(filter) => {
-            setTaskFilter(filter);
-            setActiveTab("tasks");
-            setRequestsOpen(false);
-          }}
-          onShowRequests={() => setRequestsOpen(true)}
+          onShowRisks={() => setSubView("risks")}
+          onShowRequests={() => setSubView("requests")}
         />
       )}
 
-      {requestsOpen ? null : (
+      {subView ? null : (
         <div className="mt-8 border-b border-border" role="tablist" aria-label="Project sections">
           <div className="flex gap-6">
             {TABS.map((tab) => (
@@ -425,7 +404,7 @@ export function ProjectDetails({
                 aria-selected={activeTab === tab.id}
                 onClick={() => {
                   setActiveTab(tab.id);
-                  setRequestsOpen(false);
+                  setSubView(null);
                 }}
                 className={`-mb-px border-b-2 pb-2.5 text-sm transition-colors ${
                   activeTab === tab.id
@@ -441,14 +420,14 @@ export function ProjectDetails({
       )}
 
       <div className="mt-6" role="tabpanel">
-        {requestsOpen ? (
+        {subView === "requests" ? (
           <RequestsPanel scopeProjectId={project.id} />
+        ) : subView === "risks" ? (
+          <RisksPanel project={project} onOpenTask={setOpenTaskId} />
         ) : activeTab === "tasks" ? (
           <TasksTab
             project={project}
             onNewCategory={() => setCategoryModalOpen(true)}
-            filter={taskFilter}
-            onShowAll={() => setTaskFilter("all")}
             onOpenTask={setOpenTaskId}
           />
         ) : activeTab === "meetings" ? (
