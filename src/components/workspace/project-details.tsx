@@ -419,14 +419,14 @@ export function ProjectDetails({
       )}
 
       <div className="mt-6" role="tabpanel">
-        {requestsOpen ? (
+        {subView === "requests" ? (
           <RequestsPanel scopeProjectId={project.id} />
+        ) : subView === "risks" ? (
+          <RisksPanel project={project} onOpenTask={setOpenTaskId} />
         ) : activeTab === "tasks" ? (
           <TasksTab
             project={project}
             onNewCategory={() => setCategoryModalOpen(true)}
-            filter={taskFilter}
-            onShowAll={() => setTaskFilter("all")}
             onOpenTask={setOpenTaskId}
           />
         ) : activeTab === "meetings" ? (
