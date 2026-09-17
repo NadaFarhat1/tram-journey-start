@@ -47,7 +47,7 @@ function Breadcrumb({
   projectName: string;
   onBack: () => void;
   /** Optional current sub-view, e.g. "Requests" — rendered last, not clickable. */
-  current?: string;
+  current?: string | undefined;
 }) {
   const projectCrumb = current ? (
     <button
