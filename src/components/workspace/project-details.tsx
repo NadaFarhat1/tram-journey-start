@@ -185,11 +185,11 @@ function SummaryCard({
 
 function ProjectSummary({
   project,
-  onFilterTasks,
+  onShowRisks,
   onShowRequests,
 }: {
   project: Project;
-  onFilterTasks: (filter: Exclude<TaskFilter, "all">) => void;
+  onShowRisks: () => void;
   onShowRequests: () => void;
 }) {
   const { requests } = useWorkspace();
