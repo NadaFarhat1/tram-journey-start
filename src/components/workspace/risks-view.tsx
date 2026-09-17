@@ -71,7 +71,7 @@ export function RisksPanel({
       ? project.risks
       : project.risks.filter((risk) => risk.severity === severityFilter);
 
-  const location = (taskId: string | undefined) => {
+  const location = (taskId: string | null | undefined) => {
     if (!taskId) return null;
     for (const category of project.categories) {
       const task = category.tasks.find((item) => item.id === taskId);
