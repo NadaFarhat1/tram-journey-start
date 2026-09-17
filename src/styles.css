@@ -1,0 +1,233 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * TRAM design system.
+ * Palette is fixed and approved: warm white base, soft deep teal primary,
+ * muted gold as a rare accent, deep charcoal / warm gray text.
+ */
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+
+  --color-ivory: var(--ivory);
+  --color-teal: var(--teal);
+  --color-teal-light: var(--teal-light);
+  --color-teal-pale: var(--teal-pale);
+  --color-gold: var(--gold);
+  --color-charcoal: var(--charcoal);
+  --color-warm-gray: var(--warm-gray);
+  --color-success: var(--success);
+}
+
+:root {
+  --radius: 0.5rem;
+
+  --ivory: #f3f1ec;
+  --teal: #397a78;
+  --teal-light: #6fa6a2;
+  --teal-pale: #dcebe9;
+  --gold: #c5a46d;
+  --charcoal: #292d2d;
+  --warm-gray: #777b78;
+  --success: #5f9274;
+
+  --background: #faf9f6;
+  --foreground: #292d2d;
+  --card: #faf9f6;
+  --card-foreground: #292d2d;
+  --popover: #faf9f6;
+  --popover-foreground: #292d2d;
+  --primary: #397a78;
+  --primary-foreground: #faf9f6;
+  --secondary: #f3f1ec;
+  --secondary-foreground: #292d2d;
+  --muted: #f3f1ec;
+  --muted-foreground: #777b78;
+  --accent: #dcebe9;
+  --accent-foreground: #292d2d;
+  --destructive: #b86b68;
+  --destructive-foreground: #faf9f6;
+  --border: #e4e1da;
+  --input: #e4e1da;
+  --ring: #6fa6a2;
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2 {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+  }
+}
+
+/* Shared TRAM field styling */
+@utility tram-field {
+  width: 100%;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background-color: var(--ivory);
+  color: var(--charcoal);
+  font-size: 0.9375rem;
+  outline: none;
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease,
+    background-color 150ms ease;
+
+  &::placeholder {
+    color: var(--warm-gray);
+  }
+
+  &:focus {
+    background-color: var(--background);
+    border-color: var(--teal);
+    box-shadow: 0 0 0 3px var(--teal-pale);
+  }
+
+  &[aria-invalid="true"] {
+    border-color: var(--destructive);
+  }
+
+  &[aria-invalid="true"]:focus {
+    box-shadow: 0 0 0 3px rgb(184 107 104 / 0.18);
+  }
+}
+
+@utility tram-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: var(--radius);
+  background-color: var(--teal);
+  color: var(--primary-foreground);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  padding: 0.75rem 1.25rem;
+  box-shadow: 0 1px 2px rgb(41 45 45 / 0.08);
+  transition:
+    background-color 150ms ease,
+    box-shadow 150ms ease,
+    opacity 150ms ease;
+
+  &:hover:not(:disabled) {
+    background-color: #326b69;
+    box-shadow: 0 2px 10px rgb(57 122 120 / 0.22);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--teal);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+  }
+}
+
+/* Login ↔ Sign Up: preserve both final layouts while their regions trade places. */
+.auth-form-panel {
+  view-transition-name: tram-auth-form;
+}
+
+.auth-visual-panel {
+  view-transition-name: tram-auth-visual;
+}
+
+::view-transition-group(tram-auth-form),
+::view-transition-group(tram-auth-visual) {
+  animation-duration: 620ms;
+  animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+::view-transition-old(tram-auth-form),
+::view-transition-new(tram-auth-form),
+::view-transition-old(tram-auth-visual),
+::view-transition-new(tram-auth-visual) {
+  animation-duration: 620ms;
+  animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
+
+@media (max-width: 63.999rem) {
+  .auth-form-panel {
+    view-transition-name: tram-auth-form-mobile;
+  }
+
+  .auth-visual-panel {
+    view-transition-name: tram-auth-visual-mobile;
+  }
+
+  ::view-transition-group(tram-auth-form-mobile),
+  ::view-transition-group(tram-auth-visual-mobile) {
+    animation-duration: 440ms;
+    animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+  }
+
+  ::view-transition-old(tram-auth-form-mobile),
+  ::view-transition-new(tram-auth-form-mobile),
+  ::view-transition-old(tram-auth-visual-mobile),
+  ::view-transition-new(tram-auth-visual-mobile) {
+    animation-duration: 440ms;
+    animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: 1ms;
+  }
+}
