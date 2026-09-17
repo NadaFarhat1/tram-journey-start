@@ -179,6 +179,7 @@ function ProjectSummary({
         value={String(requestCount)}
         icon={<ClipboardList className="h-4 w-4" />}
         onClick={onShowRequests}
+        actionLabel="Show requests"
       />
       <SummaryCard
         label="Held tasks"
