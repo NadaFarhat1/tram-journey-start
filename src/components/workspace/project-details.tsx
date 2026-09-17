@@ -116,6 +116,7 @@ function SummaryCard({
   valueClassName = "text-charcoal",
   iconClassName = "text-warm-gray",
   onClick,
+  actionLabel,
 }: {
   label: string;
   value: string;
@@ -123,6 +124,7 @@ function SummaryCard({
   valueClassName?: string;
   iconClassName?: string;
   onClick?: () => void;
+  actionLabel?: string;
 }) {
   const content = (
     <>
