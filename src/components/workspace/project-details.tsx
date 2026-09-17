@@ -386,7 +386,11 @@ export function ProjectDetails({
 
   return (
     <section className="px-6 py-10 sm:px-10">
-      <Breadcrumb projectName={project.name} onBack={onBack} />
+      <Breadcrumb
+        projectName={project.name}
+        onBack={onBack}
+        current={requestsOpen ? "Requests" : undefined}
+      />
       <ProjectHeader
         project={project}
         taskCount={taskCount}
@@ -405,33 +409,35 @@ export function ProjectDetails({
         />
       )}
 
-      <div className="mt-8 border-b border-border" role="tablist" aria-label="Project sections">
-        <div className="flex gap-6">
-          {TABS.map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              role="tab"
-              aria-selected={!requestsOpen && activeTab === tab.id}
-              onClick={() => {
-                setActiveTab(tab.id);
-                setRequestsOpen(false);
-              }}
-              className={`-mb-px border-b-2 pb-2.5 text-sm transition-colors ${
-                !requestsOpen && activeTab === tab.id
-                  ? "border-teal font-medium text-teal"
-                  : "border-transparent text-warm-gray hover:text-charcoal"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
+      {requestsOpen ? null : (
+        <div className="mt-8 border-b border-border" role="tablist" aria-label="Project sections">
+          <div className="flex gap-6">
+            {TABS.map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                role="tab"
+                aria-selected={activeTab === tab.id}
+                onClick={() => {
+                  setActiveTab(tab.id);
+                  setRequestsOpen(false);
+                }}
+                className={`-mb-px border-b-2 pb-2.5 text-sm transition-colors ${
+                  activeTab === tab.id
+                    ? "border-teal font-medium text-teal"
+                    : "border-transparent text-warm-gray hover:text-charcoal"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="mt-6" role="tabpanel">
         {requestsOpen ? (
-          <RequestsPanel scopeProjectId={project.id} showTitle={false} />
+          <RequestsPanel scopeProjectId={project.id} />
         ) : activeTab === "tasks" ? (
           <TasksTab
             project={project}
