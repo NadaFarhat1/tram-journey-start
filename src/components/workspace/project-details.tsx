@@ -409,8 +409,6 @@ export function ProjectDetails({
             onShowAll={() => setTaskFilter("all")}
             onOpenTask={setOpenTaskId}
           />
-        ) : activeTab === "requests" ? (
-          <RequestsPanel scopeProjectId={project.id} showTitle={false} />
         ) : activeTab === "meetings" ? (
           <MeetingsTab project={project} />
         ) : (
