@@ -203,7 +203,8 @@ function ProjectSummary({
         icon={<TriangleAlert className="h-4 w-4" />}
         valueClassName="text-destructive"
         iconClassName="text-destructive"
-        onClick={() => onFilterTasks("risks")}
+        onClick={onShowRisks}
+        actionLabel="Show risks"
       />
       <SummaryCard
         label="Requests"
