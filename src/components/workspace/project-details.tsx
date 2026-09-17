@@ -16,6 +16,7 @@ import { TaskSection } from "./task-section";
 import { TaskDetail } from "./task-detail";
 import { useWorkspace } from "./workspace-context";
 import { RequestsPanel } from "./requests-view";
+import { RisksPanel } from "./risks-view";
 import { Button } from "@/components/ui/button";
 import {
   countHeldTasks,
