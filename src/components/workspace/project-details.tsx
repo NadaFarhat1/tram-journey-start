@@ -73,10 +73,13 @@ function ProjectHeader({
   project,
   taskCount,
   onNewCategory,
+  showNewCategory = true,
 }: {
   project: Project;
   taskCount: number;
   onNewCategory: () => void;
+  /** Hidden on the standalone Requests view. */
+  showNewCategory?: boolean;
 }) {
   return (
     <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -97,7 +100,7 @@ function ProjectHeader({
           <Pencil className="h-4 w-4" aria-hidden="true" />
           Edit project
         </button>
-        {project.categories.length > 0 ? (
+        {showNewCategory && project.categories.length > 0 ? (
           <button type="button" onClick={onNewCategory} className="tram-btn">
             <Plus className="h-4 w-4" aria-hidden="true" />
             New category
@@ -363,16 +366,19 @@ export function ProjectDetails({
         project={project}
         taskCount={taskCount}
         onNewCategory={() => setCategoryModalOpen(true)}
+        showNewCategory={!requestsOpen}
       />
-      <ProjectSummary
-        project={project}
-        onFilterTasks={(filter) => {
-          setTaskFilter(filter);
-          setActiveTab("tasks");
-          setRequestsOpen(false);
-        }}
-        onShowRequests={() => setRequestsOpen(true)}
-      />
+      {requestsOpen ? null : (
+        <ProjectSummary
+          project={project}
+          onFilterTasks={(filter) => {
+            setTaskFilter(filter);
+            setActiveTab("tasks");
+            setRequestsOpen(false);
+          }}
+          onShowRequests={() => setRequestsOpen(true)}
+        />
+      )}
 
       <div className="mt-8 border-b border-border" role="tablist" aria-label="Project sections">
         <div className="flex gap-6">
