@@ -26,12 +26,11 @@ import {
   type Project,
 } from "./types";
 
-type TabId = "tasks" | "requests" | "meetings" | "members";
+type TabId = "tasks" | "meetings" | "members";
 type TaskFilter = "all" | "risks";
 
 const TABS: { id: TabId; label: string }[] = [
   { id: "tasks", label: "Tasks" },
-  { id: "requests", label: "Requests" },
   { id: "meetings", label: "Meetings" },
   { id: "members", label: "Members" },
 ];
