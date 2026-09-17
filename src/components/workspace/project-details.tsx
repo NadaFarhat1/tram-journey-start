@@ -26,12 +26,11 @@ import {
   type Project,
 } from "./types";
 
-type TabId = "tasks" | "requests" | "meetings" | "members";
+type TabId = "tasks" | "meetings" | "members";
 type TaskFilter = "all" | "risks";
 
 const TABS: { id: TabId; label: string }[] = [
   { id: "tasks", label: "Tasks" },
-  { id: "requests", label: "Requests" },
   { id: "meetings", label: "Meetings" },
   { id: "members", label: "Members" },
 ];
@@ -325,6 +324,7 @@ export function ProjectDetails({
 }) {
   const { addCategory } = useWorkspace();
   const [activeTab, setActiveTab] = useState<TabId>("tasks");
+  const [requestsOpen, setRequestsOpen] = useState(false);
   const [taskFilter, setTaskFilter] = useState<TaskFilter>("all");
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
   const [openTaskId, setOpenTaskId] = useState<string | null>(null);
@@ -369,8 +369,9 @@ export function ProjectDetails({
         onFilterTasks={(filter) => {
           setTaskFilter(filter);
           setActiveTab("tasks");
+          setRequestsOpen(false);
         }}
-        onShowRequests={() => setActiveTab("requests")}
+        onShowRequests={() => setRequestsOpen(true)}
       />
 
       <div className="mt-8 border-b border-border" role="tablist" aria-label="Project sections">
@@ -380,10 +381,13 @@ export function ProjectDetails({
               key={tab.id}
               type="button"
               role="tab"
-              aria-selected={activeTab === tab.id}
-              onClick={() => setActiveTab(tab.id)}
+              aria-selected={!requestsOpen && activeTab === tab.id}
+              onClick={() => {
+                setActiveTab(tab.id);
+                setRequestsOpen(false);
+              }}
               className={`-mb-px border-b-2 pb-2.5 text-sm transition-colors ${
-                activeTab === tab.id
+                !requestsOpen && activeTab === tab.id
                   ? "border-teal font-medium text-teal"
                   : "border-transparent text-warm-gray hover:text-charcoal"
               }`}
@@ -395,7 +399,9 @@ export function ProjectDetails({
       </div>
 
       <div className="mt-6" role="tabpanel">
-        {activeTab === "tasks" ? (
+        {requestsOpen ? (
+          <RequestsPanel scopeProjectId={project.id} showTitle={false} />
+        ) : activeTab === "tasks" ? (
           <TasksTab
             project={project}
             onNewCategory={() => setCategoryModalOpen(true)}
@@ -403,8 +409,6 @@ export function ProjectDetails({
             onShowAll={() => setTaskFilter("all")}
             onOpenTask={setOpenTaskId}
           />
-        ) : activeTab === "requests" ? (
-          <RequestsPanel scopeProjectId={project.id} showTitle={false} />
         ) : activeTab === "meetings" ? (
           <MeetingsTab project={project} />
         ) : (
