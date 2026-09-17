@@ -277,14 +277,10 @@ function CategoriesEmptyState({ onNewCategory }: { onNewCategory: () => void }) 
 function TasksTab({
   project,
   onNewCategory,
-  filter,
-  onShowAll,
   onOpenTask,
 }: {
   project: Project;
   onNewCategory: () => void;
-  filter: TaskFilter;
-  onShowAll: () => void;
   onOpenTask: (taskId: string) => void;
 }) {
   const { renameCategory, removeCategory, addTask, updateTaskStatus, requests } =
@@ -298,30 +294,13 @@ function TasksTab({
   const requestTaskIds = new Set(
     requestsForProject(requests, project.id).map((request) => request.taskId),
   );
-  const visibleCategories =
-    filter === "all"
-      ? project.categories
-      : project.categories
-          .map((category) => ({
-            ...category,
-            tasks: category.tasks.filter((task) => riskTaskIds.has(task.id)),
-          }))
-          .filter((category) => category.tasks.length > 0);
 
   if (project.categories.length === 0) {
     return <CategoriesEmptyState onNewCategory={onNewCategory} />;
   }
   return (
     <div className="space-y-3">
-      {filter !== "all" ? (
-        <div className="flex items-center justify-between gap-4 pb-1">
-          <p className="text-sm text-warm-gray">Showing tasks linked to risks</p>
-          <Button type="button" variant="outline" size="sm" onClick={onShowAll}>
-            Show all tasks
-          </Button>
-        </div>
-      ) : null}
-      {visibleCategories.map((category) => (
+      {project.categories.map((category) => (
         <TaskSection
           key={category.id}
           category={category}
