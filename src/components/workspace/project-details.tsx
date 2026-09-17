@@ -399,7 +399,9 @@ export function ProjectDetails({
       </div>
 
       <div className="mt-6" role="tabpanel">
-        {activeTab === "tasks" ? (
+        {requestsOpen ? (
+          <RequestsPanel scopeProjectId={project.id} showTitle={false} />
+        ) : activeTab === "tasks" ? (
           <TasksTab
             project={project}
             onNewCategory={() => setCategoryModalOpen(true)}
