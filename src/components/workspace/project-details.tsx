@@ -42,10 +42,31 @@ function plural(count: number, singular: string, pluralForm?: string) {
 function Breadcrumb({
   projectName,
   onBack,
+  onProject,
+  current,
 }: {
   projectName: string;
+  /** Clicking "Projects" returns to the projects list. */
   onBack: () => void;
+  /** Clicking the project name on a sub-view returns to the project page. */
+  onProject: () => void;
+  /** Optional current sub-view, e.g. "Requests" — rendered last, not clickable. */
+  current?: string | undefined;
 }) {
+  const projectCrumb = current ? (
+    <button
+      type="button"
+      onClick={onProject}
+      className="text-warm-gray transition-colors hover:text-teal"
+    >
+      {projectName}
+    </button>
+  ) : (
+    <span aria-current="page" className="font-medium text-charcoal">
+      {projectName}
+    </span>
+  );
+
   return (
     <nav aria-label="Breadcrumb">
       <ol className="flex items-center gap-1.5 text-sm">
@@ -61,9 +82,17 @@ function Breadcrumb({
         <li aria-hidden="true">
           <ChevronRight className="h-3.5 w-3.5 text-warm-gray" />
         </li>
-        <li aria-current="page" className="font-medium text-charcoal">
-          {projectName}
-        </li>
+        <li>{projectCrumb}</li>
+        {current ? (
+          <>
+            <li aria-hidden="true">
+              <ChevronRight className="h-3.5 w-3.5 text-warm-gray" />
+            </li>
+            <li aria-current="page" className="font-medium text-charcoal">
+              {current}
+            </li>
+          </>
+        ) : null}
       </ol>
     </nav>
   );
@@ -361,7 +390,12 @@ export function ProjectDetails({
 
   return (
     <section className="px-6 py-10 sm:px-10">
-      <Breadcrumb projectName={project.name} onBack={onBack} />
+      <Breadcrumb
+        projectName={project.name}
+        onBack={onBack}
+        onProject={() => setRequestsOpen(false)}
+        current={requestsOpen ? "Requests" : undefined}
+      />
       <ProjectHeader
         project={project}
         taskCount={taskCount}
@@ -380,33 +414,35 @@ export function ProjectDetails({
         />
       )}
 
-      <div className="mt-8 border-b border-border" role="tablist" aria-label="Project sections">
-        <div className="flex gap-6">
-          {TABS.map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              role="tab"
-              aria-selected={!requestsOpen && activeTab === tab.id}
-              onClick={() => {
-                setActiveTab(tab.id);
-                setRequestsOpen(false);
-              }}
-              className={`-mb-px border-b-2 pb-2.5 text-sm transition-colors ${
-                !requestsOpen && activeTab === tab.id
-                  ? "border-teal font-medium text-teal"
-                  : "border-transparent text-warm-gray hover:text-charcoal"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
+      {requestsOpen ? null : (
+        <div className="mt-8 border-b border-border" role="tablist" aria-label="Project sections">
+          <div className="flex gap-6">
+            {TABS.map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                role="tab"
+                aria-selected={activeTab === tab.id}
+                onClick={() => {
+                  setActiveTab(tab.id);
+                  setRequestsOpen(false);
+                }}
+                className={`-mb-px border-b-2 pb-2.5 text-sm transition-colors ${
+                  activeTab === tab.id
+                    ? "border-teal font-medium text-teal"
+                    : "border-transparent text-warm-gray hover:text-charcoal"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="mt-6" role="tabpanel">
         {requestsOpen ? (
-          <RequestsPanel scopeProjectId={project.id} showTitle={false} />
+          <RequestsPanel scopeProjectId={project.id} />
         ) : activeTab === "tasks" ? (
           <TasksTab
             project={project}
