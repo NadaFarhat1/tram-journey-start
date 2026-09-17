@@ -42,10 +42,27 @@ function plural(count: number, singular: string, pluralForm?: string) {
 function Breadcrumb({
   projectName,
   onBack,
+  current,
 }: {
   projectName: string;
   onBack: () => void;
+  /** Optional current sub-view, e.g. "Requests" — rendered last, not clickable. */
+  current?: string;
 }) {
+  const projectCrumb = current ? (
+    <button
+      type="button"
+      onClick={onBack}
+      className="text-warm-gray transition-colors hover:text-teal"
+    >
+      {projectName}
+    </button>
+  ) : (
+    <span aria-current="page" className="font-medium text-charcoal">
+      {projectName}
+    </span>
+  );
+
   return (
     <nav aria-label="Breadcrumb">
       <ol className="flex items-center gap-1.5 text-sm">
@@ -61,9 +78,17 @@ function Breadcrumb({
         <li aria-hidden="true">
           <ChevronRight className="h-3.5 w-3.5 text-warm-gray" />
         </li>
-        <li aria-current="page" className="font-medium text-charcoal">
-          {projectName}
-        </li>
+        <li>{projectCrumb}</li>
+        {current ? (
+          <>
+            <li aria-hidden="true">
+              <ChevronRight className="h-3.5 w-3.5 text-warm-gray" />
+            </li>
+            <li aria-current="page" className="font-medium text-charcoal">
+              {current}
+            </li>
+          </>
+        ) : null}
       </ol>
     </nav>
   );
