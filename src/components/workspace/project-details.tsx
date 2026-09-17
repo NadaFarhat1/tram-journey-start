@@ -142,7 +142,7 @@ function SummaryCard({
       type="button"
       variant="outline"
       onClick={onClick}
-      aria-label={`Show tasks linked to ${label.toLowerCase()}`}
+      aria-label={actionLabel ?? `Show tasks linked to ${label.toLowerCase()}`}
       className="h-auto w-full justify-stretch rounded-md border-border bg-background px-5 py-4 text-left font-normal shadow-none hover:border-teal-light hover:bg-background"
     >
       <span className="block w-full">{content}</span>
