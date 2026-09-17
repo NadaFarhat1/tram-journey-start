@@ -42,17 +42,21 @@ function plural(count: number, singular: string, pluralForm?: string) {
 function Breadcrumb({
   projectName,
   onBack,
+  onProject,
   current,
 }: {
   projectName: string;
+  /** Clicking "Projects" returns to the projects list. */
   onBack: () => void;
+  /** Clicking the project name on a sub-view returns to the project page. */
+  onProject: () => void;
   /** Optional current sub-view, e.g. "Requests" — rendered last, not clickable. */
   current?: string | undefined;
 }) {
   const projectCrumb = current ? (
     <button
       type="button"
-      onClick={onBack}
+      onClick={onProject}
       className="text-warm-gray transition-colors hover:text-teal"
     >
       {projectName}
@@ -389,6 +393,7 @@ export function ProjectDetails({
       <Breadcrumb
         projectName={project.name}
         onBack={onBack}
+        onProject={() => setRequestsOpen(false)}
         current={requestsOpen ? "Requests" : undefined}
       />
       <ProjectHeader
