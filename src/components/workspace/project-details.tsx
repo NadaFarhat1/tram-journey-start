@@ -369,8 +369,9 @@ export function ProjectDetails({
         onFilterTasks={(filter) => {
           setTaskFilter(filter);
           setActiveTab("tasks");
+          setRequestsOpen(false);
         }}
-        onShowRequests={() => setActiveTab("requests")}
+        onShowRequests={() => setRequestsOpen(true)}
       />
 
       <div className="mt-8 border-b border-border" role="tablist" aria-label="Project sections">
