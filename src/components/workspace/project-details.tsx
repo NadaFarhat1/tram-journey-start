@@ -27,7 +27,7 @@ import {
 } from "./types";
 
 type TabId = "tasks" | "meetings" | "members";
-type TaskFilter = "all" | "risks";
+type SubView = "requests" | "risks";
 
 const TABS: { id: TabId; label: string }[] = [
   { id: "tasks", label: "Tasks" },
