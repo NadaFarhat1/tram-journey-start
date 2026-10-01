@@ -1,5 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
+  Building2,
   BarChart3,
   Bell,
   FileText,
@@ -20,6 +21,7 @@ type SidebarItemDefinition = {
     | "/home/meetings"
     | "/home/reports"
     | "/home/members"
+    | "/home/department"
     | "/home/notifications"
     | "/home/settings";
   icon: typeof Folder;
@@ -32,6 +34,7 @@ const MAIN_ITEMS: SidebarItemDefinition[] = [
   { label: "Meetings", to: "/home/meetings", icon: Video },
   { label: "Reports", to: "/home/reports", icon: BarChart3 },
   { label: "Members", to: "/home/members", icon: Users },
+  { label: "Department", to: "/home/department", icon: Building2 },
 ];
 
 const BOTTOM_ITEMS: SidebarItemDefinition[] = [
@@ -102,7 +105,7 @@ export function Sidebar() {
       </aside>
       <nav
         aria-label="Workspace navigation"
-        className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-8 gap-0.5 border-t border-border bg-ivory/95 px-1 py-1.5 backdrop-blur-none sm:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-9 gap-0.5 border-t border-border bg-ivory/95 px-1 py-1.5 backdrop-blur-none sm:hidden"
       >
         {[...MAIN_ITEMS, ...BOTTOM_ITEMS].map((item) => {
           const Icon = item.icon;

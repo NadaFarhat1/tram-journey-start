@@ -79,13 +79,13 @@ export function TaskSection({
                 if (event.key === "Enter") commit();
                 if (event.key === "Escape") setEditing(false);
               }}
-              aria-label="Category name"
+              aria-label="Module name"
               className="tram-field h-9 flex-1 px-3"
             />
             <button
               type="button"
               onClick={commit}
-              aria-label="Save category name"
+              aria-label="Save module name"
               className="text-warm-gray transition-colors hover:text-teal"
             >
               <Check className="h-4 w-4" aria-hidden="true" />
@@ -93,7 +93,7 @@ export function TaskSection({
             <button
               type="button"
               onClick={() => setEditing(false)}
-              aria-label="Cancel renaming category"
+              aria-label="Cancel renaming module"
               className="text-warm-gray transition-colors hover:text-charcoal"
             >
               <X className="h-4 w-4" aria-hidden="true" />

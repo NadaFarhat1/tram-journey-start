@@ -25,7 +25,7 @@ export function NewCategoryModal({
   function submit(event: FormEvent) {
     event.preventDefault();
     if (!name.trim()) {
-      setError("Category name is required.");
+      setError("Module name is required.");
       return;
     }
     onCreate(name.trim());
@@ -36,7 +36,7 @@ export function NewCategoryModal({
     <Modal
       open={open}
       onClose={close}
-      title="New category"
+      title="New module"
       subtitle={`Adding to ${projectName}`}
       footer={
         <>
@@ -44,13 +44,13 @@ export function NewCategoryModal({
             Cancel
           </Button>
           <Button type="submit" form="new-category-form">
-            Create category
+            Create module
           </Button>
         </>
       }
     >
       <form id="new-category-form" onSubmit={submit} noValidate>
-        <FormField htmlFor="category-name" label="Category name" error={error}>
+        <FormField htmlFor="category-name" label="Module name" error={error}>
           <TextInput
             id="category-name"
             autoFocus
