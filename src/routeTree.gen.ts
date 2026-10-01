@@ -17,6 +17,7 @@ import { Route as MemberRouteImport } from './routes/member'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as HomeIndexRouteImport } from './routes/home.index'
+import { Route as HomeDepartmentRouteImport } from './routes/home.department'
 import { Route as HomeMeetingsRouteImport } from './routes/home.meetings'
 import { Route as HomeMembersRouteImport } from './routes/home.members'
 import { Route as HomeNotificationsRouteImport } from './routes/home.notifications'
@@ -65,6 +66,11 @@ const HomeIndexRoute = HomeIndexRouteImport.update({
   path: '/',
   getParentRoute: () => HomeRoute,
 } as any)
+const HomeDepartmentRoute = HomeDepartmentRouteImport.update({
+  id: '/department',
+  path: '/department',
+  getParentRoute: () => HomeRoute,
+} as any)
 const HomeMeetingsRoute = HomeMeetingsRouteImport.update({
   id: '/meetings',
   path: '/meetings',
@@ -109,6 +115,7 @@ export interface FileRoutesByFullPath {
   '/member': typeof MemberRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
+  '/home/department': typeof HomeDepartmentRoute
   '/home/meetings': typeof HomeMeetingsRoute
   '/home/members': typeof HomeMembersRoute
   '/home/notifications': typeof HomeNotificationsRoute
@@ -125,6 +132,7 @@ export interface FileRoutesByTo {
   '/member': typeof MemberRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
+  '/home/department': typeof HomeDepartmentRoute
   '/home/meetings': typeof HomeMeetingsRoute
   '/home/members': typeof HomeMembersRoute
   '/home/notifications': typeof HomeNotificationsRoute
@@ -143,6 +151,7 @@ export interface FileRoutesById {
   '/member': typeof MemberRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
+  '/home/department': typeof HomeDepartmentRoute
   '/home/meetings': typeof HomeMeetingsRoute
   '/home/members': typeof HomeMembersRoute
   '/home/notifications': typeof HomeNotificationsRoute
@@ -162,6 +171,7 @@ export interface FileRouteTypes {
     | '/member'
     | '/reset-password'
     | '/signup'
+    | '/home/department'
     | '/home/meetings'
     | '/home/members'
     | '/home/notifications'
@@ -178,6 +188,7 @@ export interface FileRouteTypes {
     | '/member'
     | '/reset-password'
     | '/signup'
+    | '/home/department'
     | '/home/meetings'
     | '/home/members'
     | '/home/notifications'
@@ -195,6 +206,7 @@ export interface FileRouteTypes {
     | '/member'
     | '/reset-password'
     | '/signup'
+    | '/home/department'
     | '/home/meetings'
     | '/home/members'
     | '/home/notifications'
@@ -273,6 +285,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HomeIndexRouteImport
       parentRoute: typeof HomeRoute
     }
+    '/home/department': {
+      id: '/home/department'
+      path: '/department'
+      fullPath: '/home/department'
+      preLoaderRoute: typeof HomeDepartmentRouteImport
+      parentRoute: typeof HomeRoute
+    }
     '/home/meetings': {
       id: '/home/meetings'
       path: '/meetings'
@@ -326,6 +345,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface HomeRouteChildren {
+  HomeDepartmentRoute: typeof HomeDepartmentRoute
   HomeMeetingsRoute: typeof HomeMeetingsRoute
   HomeMembersRoute: typeof HomeMembersRoute
   HomeNotificationsRoute: typeof HomeNotificationsRoute
@@ -337,6 +357,7 @@ interface HomeRouteChildren {
 }
 
 const HomeRouteChildren: HomeRouteChildren = {
+  HomeDepartmentRoute: HomeDepartmentRoute,
   HomeMeetingsRoute: HomeMeetingsRoute,
   HomeMembersRoute: HomeMembersRoute,
   HomeNotificationsRoute: HomeNotificationsRoute,

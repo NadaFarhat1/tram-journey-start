@@ -118,7 +118,7 @@ function ProjectHeader({
           {project.name}
         </h1>
         <p className="mt-1.5 text-sm text-warm-gray">
-          {plural(project.categories.length, "category", "categories")} ·{" "}
+          {plural(project.categories.length, "module")} ·{" "}
           {plural(taskCount, "task")} · {plural(project.members.length, "member")}
         </p>
       </div>
@@ -133,7 +133,7 @@ function ProjectHeader({
         {showNewCategory && project.categories.length > 0 ? (
           <button type="button" onClick={onNewCategory} className="tram-btn">
             <Plus className="h-4 w-4" aria-hidden="true" />
-            New category
+            New module
           </button>
         ) : null}
       </div>
@@ -265,11 +265,11 @@ function CategoriesEmptyState({ onNewCategory }: { onNewCategory: () => void }) 
         <Folder className="h-5 w-5 text-teal" aria-hidden="true" />
       </div>
       <p className="mt-4 text-sm text-warm-gray">
-        Create a category to start grouping tasks under this project.
+        Create a module to start grouping tasks under this project.
       </p>
       <button type="button" onClick={onNewCategory} className="tram-btn mt-6">
         <Plus className="h-4 w-4" aria-hidden="true" />
-        New category
+        New module
       </button>
     </div>
   );
