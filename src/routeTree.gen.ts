@@ -25,6 +25,7 @@ import { Route as HomeReportsRouteImport } from './routes/home.reports'
 import { Route as HomeRequestsRouteImport } from './routes/home.requests'
 import { Route as HomeRiskAlertsRouteImport } from './routes/home.risk-alerts'
 import { Route as HomeSettingsRouteImport } from './routes/home.settings'
+import { Route as InviteInviteIdRouteImport } from './routes/invite.$inviteId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -106,6 +107,11 @@ const HomeSettingsRoute = HomeSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => HomeRoute,
 } as any)
+const InviteInviteIdRoute = InviteInviteIdRouteImport.update({
+  id: '/invite/$inviteId',
+  path: '/invite/$inviteId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -123,6 +129,7 @@ export interface FileRoutesByFullPath {
   '/home/requests': typeof HomeRequestsRoute
   '/home/risk-alerts': typeof HomeRiskAlertsRoute
   '/home/settings': typeof HomeSettingsRoute
+  '/invite/$inviteId': typeof InviteInviteIdRoute
   '/home/': typeof HomeIndexRoute
 }
 export interface FileRoutesByTo {
@@ -140,6 +147,7 @@ export interface FileRoutesByTo {
   '/home/requests': typeof HomeRequestsRoute
   '/home/risk-alerts': typeof HomeRiskAlertsRoute
   '/home/settings': typeof HomeSettingsRoute
+  '/invite/$inviteId': typeof InviteInviteIdRoute
   '/home': typeof HomeIndexRoute
 }
 export interface FileRoutesById {
@@ -159,6 +167,7 @@ export interface FileRoutesById {
   '/home/requests': typeof HomeRequestsRoute
   '/home/risk-alerts': typeof HomeRiskAlertsRoute
   '/home/settings': typeof HomeSettingsRoute
+  '/invite/$inviteId': typeof InviteInviteIdRoute
   '/home/': typeof HomeIndexRoute
 }
 export interface FileRouteTypes {
@@ -179,6 +188,7 @@ export interface FileRouteTypes {
     | '/home/requests'
     | '/home/risk-alerts'
     | '/home/settings'
+    | '/invite/$inviteId'
     | '/home/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -196,6 +206,7 @@ export interface FileRouteTypes {
     | '/home/requests'
     | '/home/risk-alerts'
     | '/home/settings'
+    | '/invite/$inviteId'
     | '/home'
   id:
     | '__root__'
@@ -214,6 +225,7 @@ export interface FileRouteTypes {
     | '/home/requests'
     | '/home/risk-alerts'
     | '/home/settings'
+    | '/invite/$inviteId'
     | '/home/'
   fileRoutesById: FileRoutesById
 }
@@ -225,6 +237,7 @@ export interface RootRouteChildren {
   MemberRoute: typeof MemberRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SignupRoute: typeof SignupRoute
+  InviteInviteIdRoute: typeof InviteInviteIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -341,6 +354,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HomeSettingsRouteImport
       parentRoute: typeof HomeRoute
     }
+    '/invite/$inviteId': {
+      id: '/invite/$inviteId'
+      path: '/invite/$inviteId'
+      fullPath: '/invite/$inviteId'
+      preLoaderRoute: typeof InviteInviteIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -378,6 +398,7 @@ const rootRouteChildren: RootRouteChildren = {
   MemberRoute: MemberRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SignupRoute: SignupRoute,
+  InviteInviteIdRoute: InviteInviteIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
