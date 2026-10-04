@@ -1,22 +1,48 @@
+import { useState } from "react";
 import { Plus } from "lucide-react";
+import { toast } from "sonner";
+import { AddMemberModal } from "./add-member-modal";
 import type { Project } from "./types";
 
 type MemberStatus = "Active" | "Pending";
+type MemberRow = { name: string; email: string; status: MemberStatus };
 
-function toMember(name: string, index: number) {
+// Invitations persist for the session across tab switches.
+const invitesByProject = new Map<string, string[]>();
+
+function toMember(name: string, index: number): MemberRow {
   const email = `${name.toLowerCase().replace(/\s+/g, ".")}@email.com`;
   const status: MemberStatus = index % 3 === 2 ? "Pending" : "Active";
   return { name, email, status };
 }
 
 export function MembersTab({ project }: { project: Project }) {
-  const members = project.members.map(toMember);
+  const [invites, setInvites] = useState<string[]>(
+    () => invitesByProject.get(project.id) ?? [],
+  );
+  const [modalOpen, setModalOpen] = useState(false);
+
+  const members: MemberRow[] = [
+    ...project.members.map(toMember),
+    ...invites.map((email) => ({
+      name: "Invited member",
+      email,
+      status: "Pending" as const,
+    })),
+  ];
+
+  function invite(email: string) {
+    const next = [...invites, email];
+    invitesByProject.set(project.id, next);
+    setInvites(next);
+    toast.success("Invitation sent");
+  }
 
   return (
     <div>
       <div className="flex items-center justify-between gap-4">
         <h2 className="font-display text-lg text-charcoal">Members</h2>
-        <button type="button" className="tram-btn">
+        <button type="button" className="tram-btn" onClick={() => setModalOpen(true)}>
           <Plus className="h-4 w-4" aria-hidden="true" />
           Add member
         </button>
@@ -32,14 +58,20 @@ export function MembersTab({ project }: { project: Project }) {
               className="flex items-center justify-between gap-4 rounded-md border border-border bg-background px-5 py-4"
             >
               <div className="min-w-0">
-                <p className="truncate text-sm font-medium text-charcoal">{member.name}</p>
+                <p
+                  className={`truncate text-sm font-medium ${
+                    member.status === "Active" ? "text-charcoal" : "text-warm-gray"
+                  }`}
+                >
+                  {member.name}
+                </p>
                 <p className="truncate text-sm text-warm-gray">{member.email}</p>
               </div>
               <span
                 className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${
                   member.status === "Active"
                     ? "bg-teal-pale text-teal"
-                    : "bg-muted text-warm-gray"
+                    : "border border-dashed border-border text-warm-gray"
                 }`}
               >
                 {member.status}
@@ -48,6 +80,14 @@ export function MembersTab({ project }: { project: Project }) {
           ))}
         </ul>
       )}
+
+      <AddMemberModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        projectName={project.name}
+        existingEmails={members.map((m) => m.email)}
+        onInvite={invite}
+      />
     </div>
   );
 }
