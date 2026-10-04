@@ -17,6 +17,7 @@ import { TaskDetail } from "./task-detail";
 import { useWorkspace } from "./workspace-context";
 import { RequestsPanel } from "./requests-view";
 import { RisksPanel } from "./risks-view";
+import { MembersTab } from "./members-tab";
 import { Button } from "@/components/ui/button";
 import {
   countHeldTasks,
@@ -433,9 +434,7 @@ export function ProjectDetails({
         ) : activeTab === "meetings" ? (
           <MeetingsTab project={project} />
         ) : (
-          <p className="py-16 text-center text-sm text-warm-gray">
-            No members yet
-          </p>
+          <MembersTab project={project} />
         )}
       </div>
 
