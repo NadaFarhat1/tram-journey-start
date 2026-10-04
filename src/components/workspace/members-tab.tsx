@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
 import { AddMemberModal } from "./add-member-modal";
+import { createInvitation } from "@/lib/invitations.functions";
+import { useCurrentUserName } from "./use-current-user";
 import type { Project } from "./types";
 
 type MemberStatus = "Active" | "Pending";
@@ -21,6 +23,7 @@ export function MembersTab({ project }: { project: Project }) {
     () => invitesByProject.get(project.id) ?? [],
   );
   const [modalOpen, setModalOpen] = useState(false);
+  const inviterName = useCurrentUserName() ?? "Your team leader";
 
   const members: MemberRow[] = [
     ...project.members.map(toMember),
@@ -31,11 +34,26 @@ export function MembersTab({ project }: { project: Project }) {
     })),
   ];
 
-  function invite(email: string) {
-    const next = [...invites, email];
-    invitesByProject.set(project.id, next);
-    setInvites(next);
-    toast.success("Invitation sent");
+  async function invite(email: string) {
+    try {
+      const { id } = await createInvitation({
+        data: { projectRef: project.id, projectName: project.name, email, inviterName },
+      });
+      const link = `${window.location.origin}/invite/${id}`;
+      const next = [...invites, email];
+      invitesByProject.set(project.id, next);
+      setInvites(next);
+      toast.success("Invitation sent", {
+        description: link,
+        duration: 15000,
+        action: {
+          label: "Copy link",
+          onClick: () => void navigator.clipboard.writeText(link),
+        },
+      });
+    } catch {
+      toast.error("Could not send invitation. Please try again.");
+    }
   }
 
   return (
@@ -86,7 +104,7 @@ export function MembersTab({ project }: { project: Project }) {
         onClose={() => setModalOpen(false)}
         projectName={project.name}
         existingEmails={members.map((m) => m.email)}
-        onInvite={invite}
+        onInvite={(email) => void invite(email)}
       />
     </div>
   );
