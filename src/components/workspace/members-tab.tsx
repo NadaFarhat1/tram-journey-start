@@ -13,12 +13,6 @@ import type { Project } from "./types";
 type MemberStatus = "Active" | "Pending";
 type MemberRow = { name: string; email: string; status: MemberStatus };
 
-function toMember(name: string, index: number): MemberRow {
-  const email = `${name.toLowerCase().replace(/\s+/g, ".")}@email.com`;
-  const status: MemberStatus = index % 3 === 2 ? "Pending" : "Active";
-  return { name, email, status };
-}
-
 export function MembersTab({ project }: { project: Project }) {
   const [invites, setInvites] = useState<ProjectInvitationRow[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
@@ -37,7 +31,6 @@ export function MembersTab({ project }: { project: Project }) {
   }, [project.id]);
 
   const members: MemberRow[] = [
-    ...project.members.map(toMember),
     ...invites.map((invite) => ({
       name: invite.status === "accepted" ? (invite.name ?? invite.email) : "Invited member",
       email: invite.email,
