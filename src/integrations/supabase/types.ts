@@ -49,30 +49,39 @@ export type Database = {
       }
       project_invitations: {
         Row: {
+          accepted_at: string | null
+          accepted_name: string | null
+          accepted_user_id: string | null
           created_at: string
           email: string
           id: string
-          inviter_id: string
+          inviter_id: string | null
           inviter_name: string
           project_name: string
           project_ref: string
           status: string
         }
         Insert: {
+          accepted_at?: string | null
+          accepted_name?: string | null
+          accepted_user_id?: string | null
           created_at?: string
           email: string
           id?: string
-          inviter_id: string
+          inviter_id?: string | null
           inviter_name: string
           project_name: string
           project_ref: string
           status?: string
         }
         Update: {
+          accepted_at?: string | null
+          accepted_name?: string | null
+          accepted_user_id?: string | null
           created_at?: string
           email?: string
           id?: string
-          inviter_id?: string
+          inviter_id?: string | null
           inviter_name?: string
           project_name?: string
           project_ref?: string

@@ -8,6 +8,13 @@
       "when": 1791152799306,
       "tag": "0000_project_invitations",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1791155358037,
+      "tag": "0001_invitation_acceptance",
+      "breakpoints": true
     }
   ]
 }
