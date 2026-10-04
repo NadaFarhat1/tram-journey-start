@@ -1,16 +1,17 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
 import { AddMemberModal } from "./add-member-modal";
-import { createInvitation } from "@/lib/invitations.functions";
+import {
+  createInvitation,
+  listProjectInvitations,
+  type ProjectInvitationRow,
+} from "@/lib/invitations.functions";
 import { useCurrentUserName } from "./use-current-user";
 import type { Project } from "./types";
 
 type MemberStatus = "Active" | "Pending";
 type MemberRow = { name: string; email: string; status: MemberStatus };
-
-// Invitations persist for the session across tab switches.
-const invitesByProject = new Map<string, string[]>();
 
 function toMember(name: string, index: number): MemberRow {
   const email = `${name.toLowerCase().replace(/\s+/g, ".")}@email.com`;
@@ -19,18 +20,28 @@ function toMember(name: string, index: number): MemberRow {
 }
 
 export function MembersTab({ project }: { project: Project }) {
-  const [invites, setInvites] = useState<string[]>(
-    () => invitesByProject.get(project.id) ?? [],
-  );
+  const [invites, setInvites] = useState<ProjectInvitationRow[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const inviterName = useCurrentUserName() ?? "Your team leader";
 
+  useEffect(() => {
+    let active = true;
+    listProjectInvitations({ data: { projectRef: project.id } })
+      .then((rows) => {
+        if (active) setInvites(rows);
+      })
+      .catch(() => undefined);
+    return () => {
+      active = false;
+    };
+  }, [project.id]);
+
   const members: MemberRow[] = [
     ...project.members.map(toMember),
-    ...invites.map((email) => ({
-      name: "Invited member",
-      email,
-      status: "Pending" as const,
+    ...invites.map((invite) => ({
+      name: invite.status === "accepted" ? (invite.name ?? invite.email) : "Invited member",
+      email: invite.email,
+      status: (invite.status === "accepted" ? "Active" : "Pending") as MemberStatus,
     })),
   ];
 
@@ -40,9 +51,11 @@ export function MembersTab({ project }: { project: Project }) {
         data: { projectRef: project.id, projectName: project.name, email, inviterName },
       });
       const link = `${window.location.origin}/invite/${id}`;
-      const next = [...invites, email];
-      invitesByProject.set(project.id, next);
-      setInvites(next);
+      setInvites((prev) =>
+        prev.some((row) => row.id === id)
+          ? prev
+          : [...prev, { id, email, status: "pending", name: null }],
+      );
       toast.success("Invitation sent", {
         description: link,
         duration: 15000,
