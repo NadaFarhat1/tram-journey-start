@@ -261,7 +261,7 @@ const SAMPLE_DETAILS: {
         tasks: [task("d1-t7", "Regression suite", "Member 6", "", "Active")],
       },
     ],
-    members: ["Member 1", "Member 2", "Member 3", "Member 4", "Member 5", "Member 6"],
+    members: [],
     risks: [
       { id: "d1-r1", title: "Supplier delivery may slip", severity: "High", taskId: "d1-t1" },
       { id: "d1-r2", title: "Budget approval pending", severity: "Medium", taskId: "d1-t2" },
@@ -292,7 +292,7 @@ const SAMPLE_DETAILS: {
         ],
       },
     ],
-    members: ["Member 1", "Member 2", "Member 3", "Member 4", "Member 5"],
+    members: [],
     risks: [{ id: "d2-r1", title: "Scope still not final", severity: "High", taskId: "d2-t1" }],
     meetings: [
       { id: "d2-m1", title: "Client review", date: todayISO(), time: "11:30 AM" },
@@ -317,7 +317,7 @@ const SAMPLE_DETAILS: {
         ],
       },
     ],
-    members: ["Member 1", "Member 2", "Member 3", "Member 6"],
+    members: [],
     risks: [
       { id: "d3-r1", title: "Dependency on external team", severity: "Medium", taskId: "d3-t1" },
       { id: "d3-r2", title: "Unclear acceptance criteria", severity: "Low", taskId: "d3-t2" },
