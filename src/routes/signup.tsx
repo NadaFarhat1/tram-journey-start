@@ -7,6 +7,8 @@ import { AuthShell, AuthHeading } from "@/components/tram/auth-shell";
 import { AuthTransitionLink } from "@/components/tram/auth-transition-link";
 import { FloatingField } from "@/components/tram/floating-field";
 import { COUNTRIES } from "@/lib/countries";
+import { getInvitation, type InvitationDetails } from "@/lib/invitations.functions";
+import { useEffect } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Select,
@@ -25,6 +27,8 @@ export const Route = createFileRoute("/signup")({
       { property: "og:description", content: "Join TRAM and get started with your team." },
     ],
   }),
+  validateSearch: (search: Record<string, unknown>): { invite?: string } =>
+    typeof search["invite"] === "string" ? { invite: search["invite"] } : {},
   component: SignUpPage,
 });
 
@@ -52,6 +56,20 @@ function SignUpPage() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [errors, setErrors] = useState<Errors>({});
   const [loading, setLoading] = useState(false);
+  const { invite: inviteId } = Route.useSearch();
+  const [invitation, setInvitation] = useState<InvitationDetails | null>(null);
+
+  useEffect(() => {
+    if (!inviteId) return;
+    getInvitation({ data: { id: inviteId } })
+      .then((found) => {
+        if (!found) return;
+        setInvitation(found);
+        setEmail(found.email);
+        setRole("member");
+      })
+      .catch(() => undefined);
+  }, [inviteId]);
 
   const dial = useMemo(
     () => COUNTRIES.find((c) => c.code === countryCode)?.dial ?? "+20",
@@ -99,6 +117,9 @@ function SignUpPage() {
           last_name: lastName.trim(),
           phone: fullPhone,
           role,
+          ...(invitation
+            ? { invitation_id: invitation.id, invited_project: invitation.projectName }
+            : {}),
         },
       },
     });
@@ -117,7 +138,14 @@ function SignUpPage() {
 
   return (
     <AuthShell visualLeft>
-      <AuthHeading title="Create Your Account" subtitle="Join TRAM and get started." />
+      <AuthHeading
+        title="Create Your Account"
+        subtitle={
+          invitation
+            ? `Joining ${invitation.projectName} — invited by ${invitation.inviterName}.`
+            : "Join TRAM and get started."
+        }
+      />
 
       <form onSubmit={handleSubmit} noValidate className="space-y-4">
         <div className="grid gap-4 sm:grid-cols-2">
@@ -147,6 +175,7 @@ function SignUpPage() {
             autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            readOnly={invitation !== null}
             error={errors.email}
           />
 
@@ -259,6 +288,7 @@ function SignUpPage() {
           />
         </div>
 
+        {invitation ? null : (
         <div>
           <Select value={role} onValueChange={setRole}>
             <SelectTrigger
@@ -277,6 +307,7 @@ function SignUpPage() {
             <p className="mt-1.5 text-xs font-medium text-destructive">{errors.role}</p>
           ) : null}
         </div>
+        )}
 
         <div className="pt-2">
           <button
