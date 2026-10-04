@@ -1,6 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export type InvitationDetails = {
   id: string;
@@ -9,8 +8,30 @@ export type InvitationDetails = {
   email: string;
 };
 
+export type ProjectInvitationRow = {
+  id: string;
+  email: string;
+  status: "pending" | "accepted";
+  name: string | null;
+};
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** Resolves the caller's user id from an optional bearer token. */
+async function optionalUserId(): Promise<string | null> {
+  const { getRequestHeader } = await import("@tanstack/react-start/server");
+  const auth = getRequestHeader("authorization");
+  if (!auth?.startsWith("Bearer ")) return null;
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data } = await supabaseAdmin.auth.getUser(auth.slice(7));
+  return data.user?.id ?? null;
+}
+
+/**
+ * Creates (or reuses) an invitation link. Works in the demo workspace too,
+ * so a session is optional; the inviter is recorded when signed in.
+ */
 export const createInvitation = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
     z
       .object({
@@ -21,20 +42,52 @@ export const createInvitation = createServerFn({ method: "POST" })
       })
       .parse(data),
   )
-  .handler(async ({ data, context }): Promise<{ id: string }> => {
-    const { data: row, error } = await context.supabase
+  .handler(async ({ data }): Promise<{ id: string }> => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const inviterId = await optionalUserId();
+
+    const { data: existing } = await supabaseAdmin
+      .from("project_invitations")
+      .select("id")
+      .eq("project_ref", data.projectRef)
+      .eq("email", data.email)
+      .maybeSingle();
+    if (existing) return { id: existing.id };
+
+    const { data: row, error } = await supabaseAdmin
       .from("project_invitations")
       .insert({
         project_ref: data.projectRef,
         project_name: data.projectName,
         email: data.email,
-        inviter_id: context.userId,
+        inviter_id: inviterId,
         inviter_name: data.inviterName,
       })
       .select("id")
       .single();
-    if (error || !row) throw new Error("Could not create invitation");
+    if (error || !row) {
+      console.error("createInvitation failed", error);
+      throw new Error("Could not create invitation");
+    }
     return { id: row.id };
+  });
+
+/** Invitations of one project, used to render Pending/Active members. */
+export const listProjectInvitations = createServerFn({ method: "GET" })
+  .inputValidator((data) => z.object({ projectRef: z.string().min(1).max(100) }).parse(data))
+  .handler(async ({ data }): Promise<ProjectInvitationRow[]> => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: rows } = await supabaseAdmin
+      .from("project_invitations")
+      .select("id, email, status, accepted_name, created_at")
+      .eq("project_ref", data.projectRef)
+      .order("created_at", { ascending: true });
+    return (rows ?? []).map((row) => ({
+      id: row.id,
+      email: row.email,
+      status: row.status === "accepted" ? "accepted" : "pending",
+      name: row.accepted_name,
+    }));
   });
 
 /** Public lookup by unguessable invitation id; returns only display fields. */
@@ -54,4 +107,64 @@ export const getInvitation = createServerFn({ method: "GET" })
       inviterName: row.inviter_name,
       email: row.email,
     };
+  });
+
+/**
+ * Accepts an invitation for a freshly registered user. The account must exist
+ * and its email must match the invitation, so the call can't be spoofed.
+ */
+export const acceptInvitation = createServerFn({ method: "POST" })
+  .inputValidator((data) =>
+    z.object({ invitationId: z.string().uuid(), userId: z.string().uuid() }).parse(data),
+  )
+  .handler(async ({ data }): Promise<{ ok: boolean }> => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: invite } = await supabaseAdmin
+      .from("project_invitations")
+      .select("id, email, project_ref, status")
+      .eq("id", data.invitationId)
+      .maybeSingle();
+    if (!invite) return { ok: false };
+
+    const { data: userRes } = await supabaseAdmin.auth.admin.getUserById(data.userId);
+    const user = userRes.user;
+    if (!user || user.email?.toLowerCase() !== invite.email.toLowerCase()) return { ok: false };
+
+    const meta = user.user_metadata ?? {};
+    const name =
+      `${String(meta["first_name"] ?? "")} ${String(meta["last_name"] ?? "")}`.trim() ||
+      invite.email;
+
+    const { error } = await supabaseAdmin
+      .from("project_invitations")
+      .update({
+        status: "accepted",
+        accepted_user_id: user.id,
+        accepted_name: name,
+        accepted_at: new Date().toISOString(),
+      })
+      .eq("id", invite.id);
+    if (error) return { ok: false };
+
+    if (UUID_RE.test(invite.project_ref)) {
+      const { data: project } = await supabaseAdmin
+        .from("projects")
+        .select("id")
+        .eq("id", invite.project_ref)
+        .maybeSingle();
+      if (project) {
+        const { data: already } = await supabaseAdmin
+          .from("project_members")
+          .select("id")
+          .eq("project_uuid", project.id)
+          .eq("user_id", user.id)
+          .maybeSingle();
+        if (!already) {
+          await supabaseAdmin
+            .from("project_members")
+            .insert({ project_uuid: project.id, user_id: user.id });
+        }
+      }
+    }
+    return { ok: true };
   });

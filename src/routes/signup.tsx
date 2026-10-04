@@ -107,7 +107,7 @@ function SignUpPage() {
     setLoading(true);
     const fullPhone = `${dial}${phone.replace(/\D/g, "")}`;
 
-    const { error } = await supabase.auth.signUp({
+    const { data: signUpData, error } = await supabase.auth.signUp({
       email: email.trim(),
       password,
       options: {
@@ -128,6 +128,16 @@ function SignUpPage() {
       setLoading(false);
       setErrors({ email: error.message });
       return;
+    }
+
+    if (invitation && signUpData.user) {
+      try {
+        await acceptInvitation({
+          data: { invitationId: invitation.id, userId: signUpData.user.id },
+        });
+      } catch {
+        // Account exists; acceptance can be retried by the leader re-inviting.
+      }
     }
 
     await supabase.auth.signOut();
