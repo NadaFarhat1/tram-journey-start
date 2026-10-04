@@ -7,7 +7,11 @@ import { AuthShell, AuthHeading } from "@/components/tram/auth-shell";
 import { AuthTransitionLink } from "@/components/tram/auth-transition-link";
 import { FloatingField } from "@/components/tram/floating-field";
 import { COUNTRIES } from "@/lib/countries";
-import { getInvitation, type InvitationDetails } from "@/lib/invitations.functions";
+import {
+  acceptInvitation,
+  getInvitation,
+  type InvitationDetails,
+} from "@/lib/invitations.functions";
 import { useEffect } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
@@ -107,7 +111,7 @@ function SignUpPage() {
     setLoading(true);
     const fullPhone = `${dial}${phone.replace(/\D/g, "")}`;
 
-    const { error } = await supabase.auth.signUp({
+    const { data: signUpData, error } = await supabase.auth.signUp({
       email: email.trim(),
       password,
       options: {
@@ -128,6 +132,16 @@ function SignUpPage() {
       setLoading(false);
       setErrors({ email: error.message });
       return;
+    }
+
+    if (invitation && signUpData.user) {
+      try {
+        await acceptInvitation({
+          data: { invitationId: invitation.id, userId: signUpData.user.id },
+        });
+      } catch {
+        // Account exists; acceptance can be retried by the leader re-inviting.
+      }
     }
 
     await supabase.auth.signOut();
