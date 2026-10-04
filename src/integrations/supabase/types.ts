@@ -47,6 +47,39 @@ export type Database = {
         }
         Relationships: []
       }
+      project_invitations: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          inviter_id: string
+          inviter_name: string
+          project_name: string
+          project_ref: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          inviter_id: string
+          inviter_name: string
+          project_name: string
+          project_ref: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          inviter_id?: string
+          inviter_name?: string
+          project_name?: string
+          project_ref?: string
+          status?: string
+        }
+        Relationships: []
+      }
       project_members: {
         Row: {
           created_at: string
