@@ -72,6 +72,36 @@ export const createInvitation = createServerFn({ method: "POST" })
     return { id: row.id };
   });
 
+export type ProjectMemberRow = {
+  userId: string;
+  name: string;
+  email: string;
+};
+
+/**
+ * Actual members of one project, from the project_members relationship joined
+ * with profiles. This is the source of truth for Active membership.
+ */
+export const listProjectMembers = createServerFn({ method: "GET" })
+  .inputValidator((data) => z.object({ projectRef: z.string().min(1).max(100) }).parse(data))
+  .handler(async ({ data }): Promise<ProjectMemberRow[]> => {
+    if (!UUID_RE.test(data.projectRef)) return [];
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: rows } = await supabaseAdmin
+      .from("project_members")
+      .select("user_id, profiles(first_name, last_name, email)")
+      .eq("project_uuid", data.projectRef)
+      .order("created_at", { ascending: true });
+    return (rows ?? []).map((row) => {
+      const profile = Array.isArray(row.profiles) ? row.profiles[0] : row.profiles;
+      const name =
+        `${profile?.first_name ?? ""} ${profile?.last_name ?? ""}`.trim() ||
+        profile?.email ||
+        "Member";
+      return { userId: row.user_id, name, email: profile?.email ?? "" };
+    });
+  });
+
 /** Invitations of one project, used to render Pending/Active members. */
 export const listProjectInvitations = createServerFn({ method: "GET" })
   .inputValidator((data) => z.object({ projectRef: z.string().min(1).max(100) }).parse(data))
