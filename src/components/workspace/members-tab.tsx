@@ -5,6 +5,7 @@ import { AddMemberModal } from "./add-member-modal";
 import {
   createInvitation,
   listProjectInvitations,
+  listProjectMembers,
   type ProjectInvitationRow,
 } from "@/lib/invitations.functions";
 import { useCurrentUserName } from "./use-current-user";
@@ -15,11 +16,19 @@ type MemberRow = { name: string; email: string; status: MemberStatus };
 
 export function MembersTab({ project }: { project: Project }) {
   const [invites, setInvites] = useState<ProjectInvitationRow[]>([]);
+  const [realMembers, setRealMembers] = useState<
+    { userId: string; name: string; email: string }[]
+  >([]);
   const [modalOpen, setModalOpen] = useState(false);
   const inviterName = useCurrentUserName() ?? "Your team leader";
 
   useEffect(() => {
     let active = true;
+    listProjectMembers({ data: { projectRef: project.id } })
+      .then((rows) => {
+        if (active) setRealMembers(rows);
+      })
+      .catch(() => undefined);
     listProjectInvitations({ data: { projectRef: project.id } })
       .then((rows) => {
         if (active) setInvites(rows);
@@ -30,12 +39,26 @@ export function MembersTab({ project }: { project: Project }) {
     };
   }, [project.id]);
 
+  const memberEmails = new Set(realMembers.map((m) => m.email.toLowerCase()));
   const members: MemberRow[] = [
-    ...invites.map((invite) => ({
-      name: invite.status === "accepted" ? (invite.name ?? invite.email) : "Invited member",
-      email: invite.email,
-      status: (invite.status === "accepted" ? "Active" : "Pending") as MemberStatus,
+    // Real project members (project_members + profiles) are the source of truth.
+    ...realMembers.map((m) => ({
+      name: m.name,
+      email: m.email,
+      status: "Active" as MemberStatus,
     })),
+    // Only still-pending invitations; accepted ones are excluded so a member
+    // never appears twice.
+    ...invites
+      .filter(
+        (invite) =>
+          invite.status === "pending" && !memberEmails.has(invite.email.toLowerCase()),
+      )
+      .map((invite) => ({
+        name: "Invited member",
+        email: invite.email,
+        status: "Pending" as MemberStatus,
+      })),
   ];
 
   async function invite(email: string) {
