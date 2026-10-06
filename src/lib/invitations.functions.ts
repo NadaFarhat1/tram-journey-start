@@ -87,13 +87,25 @@ export const listProjectMembers = createServerFn({ method: "GET" })
   .handler(async ({ data }): Promise<ProjectMemberRow[]> => {
     if (!UUID_RE.test(data.projectRef)) return [];
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // project_members has no direct FK to profiles, so embeds fail; fetch both
+    // sides separately and merge in memory.
     const { data: rows } = await supabaseAdmin
       .from("project_members")
-      .select("user_id, profiles(first_name, last_name, email)")
+      .select("user_id")
       .eq("project_uuid", data.projectRef)
       .order("created_at", { ascending: true });
-    return (rows ?? []).map((row) => {
-      const profile = Array.isArray(row.profiles) ? row.profiles[0] : row.profiles;
+    const memberRows = rows ?? [];
+    if (memberRows.length === 0) return [];
+    const { data: profileRows } = await supabaseAdmin
+      .from("profiles")
+      .select("id, first_name, last_name, email")
+      .in(
+        "id",
+        memberRows.map((row) => row.user_id),
+      );
+    const profilesById = new Map((profileRows ?? []).map((profile) => [profile.id, profile]));
+    return memberRows.map((row) => {
+      const profile = profilesById.get(row.user_id);
       const name =
         `${profile?.first_name ?? ""} ${profile?.last_name ?? ""}`.trim() ||
         profile?.email ||
